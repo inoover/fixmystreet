@@ -7,7 +7,7 @@
 [% ELSIF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) AND problem.shortlisted_user %]
     [% item_extra_class = "item-list__item--indented" %]
     [% item_action = BLOCK %]
-        <input type="submit" name="shortlist-take" value="[% loc('Add to shortlist') %]" title="[% loc('Add to shortlist') %]" class="item-list__item__shortlist-take">
+        <input type="submit" name="shortlist-add" value="[% loc('Add to shortlist') %]" title="[% loc('Add to shortlist') %]" class="item-list__item__shortlist-take">
     [% END %]
 
 [% ELSIF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) %]
@@ -58,11 +58,13 @@
             [% END %]
         </small>
 </a>
-[% IF item_action %]
-    <form action="" method="post">
+[% IF item_action AND page != 'around' %]
+    <form method="post" action="/my/planned/change">
         <input type="hidden" name="id" value="[% problem.id %]">
         <input type="hidden" name="token" value="[% csrf_token %]">
         [% item_action %]
     </form>
+[% ELSIF item_action ~%]
+    [% item_action.replace('("shortlist-[^"]*)', '$1-' _ problem.id) %]
 [% END ~%]
 </li>

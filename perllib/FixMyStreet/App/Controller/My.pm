@@ -31,6 +31,8 @@ sub begin : Private {
 sub my : Path : Args(0) {
     my ( $self, $c ) = @_;
 
+    $c->forward('/auth/get_csrf_token');
+
     $c->stash->{problems_rs} = $c->cobrand->problems->search(
         { user_id => $c->user->id });
     $c->forward('/reports/stash_report_sort', [ 'created-desc' ]);
@@ -44,6 +46,8 @@ sub my : Path : Args(0) {
 
 sub planned : Local : Args(0) {
     my ( $self, $c ) = @_;
+
+    $c->forward('/auth/get_csrf_token');
 
     $c->detach('/page_error_403_access_denied', [])
         unless $c->user->has_body_permission_to('planned_reports');
@@ -173,22 +177,25 @@ sub planned_change : Path('planned/change') {
     my ($self, $c) = @_;
     $c->forward('/auth/check_csrf_token');
 
+    $c->go('planned') if grep { /^shortlist-(up|down|\d+)$/ } keys %{$c->req->params};
+
     my $id = $c->get_param('id');
     $c->forward( '/report/load_problem_or_display_error', [ $id ] );
 
-    my $change = $c->get_param('change');
+    my $add = $c->get_param('shortlist-add');
+    my $remove = $c->get_param('shortlist-remove');
     $c->detach('/page_error_403_access_denied', [])
-        unless $change && $change =~ /add|remove/;
+        unless $add || $remove;
 
-    if ($change eq 'add') {
+    if ($add) {
         $c->user->add_to_planned_reports($c->stash->{problem});
-    } elsif ($change eq 'remove') {
+    } elsif ($remove) {
         $c->user->remove_from_planned_reports($c->stash->{problem});
     }
 
     if ($c->get_param('ajax')) {
         $c->res->content_type('application/json; charset=utf-8');
-        $c->res->body(encode_json({ outcome => $change }));
+        $c->res->body(encode_json({ outcome => $add ? 'add' : 'remove' }));
     } else {
         $c->res->redirect( $c->uri_for_action('report/display', $id) );
     }

@@ -109,6 +109,8 @@ Show the summary page for a particular ward.
 sub ward : Path : Args(2) {
     my ( $self, $c, $body, $ward ) = @_;
 
+    $c->forward('/auth/get_csrf_token');
+
     $c->forward( 'body_check', [ $body ] );
     $c->forward( 'ward_check', [ $ward ] )
         if $ward;

@@ -214,6 +214,9 @@ fixmystreet.geolocate = {
 };
 
 fixmystreet.update_list_item_buttons = function($list) {
+    if (!$list) {
+        return;
+    }
   $list.find('[name="shortlist-up"], [name="shortlist-down"]').prop('disabled', false);
   $list.children(':first-child').find('[name="shortlist-up"]').prop('disabled', true);
   $list.children(':last-child').find('[name="shortlist-down"]').prop('disabled', true);
@@ -319,7 +322,6 @@ $.extend(fixmystreet.set_up, {
         }
         e.preventDefault();
         var $form = $(this),
-            $change = $form.find("input[name='change']" ),
             $submit = $form.find("input[type='submit']" ),
             $labels = $('label[for="' + $submit.attr('id') + '"]'),
             data = $form.serialize() + '&ajax=1',
@@ -329,16 +331,15 @@ $.extend(fixmystreet.set_up, {
 
         $.post(this.action, data, function(data) {
             if (data.outcome == 'add') {
-                changeValue = "remove";
+                $form.find("input[name='shortlist-add']" ).attr('name', 'shortlist-remove');
                 buttonLabel = $submit.data('label-remove');
                 buttonValue = $submit.data('value-remove');
                 $('.shortlisted-status').remove();
             } else if (data.outcome == 'remove') {
-                changeValue = "add";
+                $form.find("input[name='shortlist-remove']" ).attr('name', 'shortlist-add');
                 buttonLabel = $submit.data('label-add');
                 buttonValue = $submit.data('value-add');
             }
-            $change.val(changeValue);
             $submit.val(buttonValue).attr('aria-label', buttonLabel);
             $labels.text(buttonValue).attr('aria-label', buttonLabel);
         });
@@ -401,21 +402,34 @@ $.extend(fixmystreet.set_up, {
       e.preventDefault();
 
       var $submitButton = $(this);
-      var $form = $(this).parents('form');
-      var $item = $form.parent('.item-list__item');
-      var $list = $item.parent('.item-list');
-
-      // The server expects to be told which button/input triggered the form
-      // submission. But $form.serialize() doesn't know that. So we inject a
-      // hidden input into the form, that can pass the name and value of the
-      // submit button to the server, as it expects.
       var whatUserWants = $submitButton.prop('name');
-      var $hiddenInput =  $('<input>').attr({
-        type: 'hidden',
-        name: whatUserWants,
-        value: $submitButton.prop('value')
-      }).appendTo($form);
-      var data = $form.serialize() + '&ajax=1';
+      var data;
+      var $item;
+      var $list;
+      var $hiddenInput;
+      if (fixmystreet.page === 'around') {
+          // Deal differently because one big form
+          var parts = whatUserWants.split('-');
+          whatUserWants = parts[0] + '-' + parts[1];
+          var id = parts[2];
+          var token = $('[name=token]').val();
+          data = whatUserWants + '=1&token=' + token + '&id=' + id;
+      } else {
+          var $form = $(this).parents('form');
+          $item = $form.parent('.item-list__item');
+          $list = $item.parent('.item-list');
+
+          // The server expects to be told which button/input triggered the form
+          // submission. But $form.serialize() doesn't know that. So we inject a
+          // hidden input into the form, that can pass the name and value of the
+          // submit button to the server, as it expects.
+          $hiddenInput = $('<input>').attr({
+            type: 'hidden',
+            name: whatUserWants,
+            value: $submitButton.prop('value')
+          }).appendTo($form);
+          data = $form.serialize() + '&ajax=1';
+      }
 
       // Update UI while the ajax request is sent in the background.
       if ('shortlist-down' === whatUserWants) {
@@ -441,8 +455,8 @@ $.extend(fixmystreet.set_up, {
       fixmystreet.update_list_item_buttons($list);
 
       $.ajax({
-        url: $form.prop('action'),
-        type: $form.prop('method'),
+        url: '/my/planned/change',
+        type: 'POST',
         data: data
       }).fail(function() {
         // Undo the UI changes we made.
@@ -453,11 +467,10 @@ $.extend(fixmystreet.set_up, {
         }
         fixmystreet.update_list_item_buttons($list);
       }).complete(function() {
-        $hiddenInput.remove();
+        if ($hiddenInput) {
+          $hiddenInput.remove();
+        }
       });
-
-      // :TODO: On ajax success, should we replace the current page markup
-      // with the markup returned in the ajax response?
     });
   },
 
