@@ -78,7 +78,7 @@
           </p>
           <div id="js-duplicate-reports" class="[% "hidden" UNLESS problem.duplicate_of %]">
             <input type="hidden" name="duplicate_of" value="[% problem.duplicate_of.id %]">
-            <p class="js- [% "hidden" UNLESS problem.duplicate_of %]"><strong>[% loc('Duplicate of') %]</strong></p>
+            <p class="[% "hidden" UNLESS problem.duplicate_of %]"><strong>[% loc('Duplicate of') %]</strong></p>
             <p class="[% "hidden" IF problem.duplicate_of %]">[% loc('Which report is it a duplicate of?') %]</p>
             <ul class="item-list">
               [% IF problem.duplicate_of %]
