@@ -436,6 +436,11 @@ $.extend(fixmystreet.set_up, {
 
       function show_nearby_pins(data, report_id) {
           var markers = fixmystreet.maps.markers_list( data.pins, true );
+          // We're replacing all the features in the markers layer with the
+          // possible duplicates, but the list of pins from the server doesn't
+          // include the current report. So we need to extract the feature for
+          // the current report and include it in the list of features we're
+          // showing on the layer.
           var report_marker = fixmystreet.maps.get_marker_by_id(parseInt(report_id, 10));
           if (report_marker) {
               markers.unshift(report_marker);
