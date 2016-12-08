@@ -394,7 +394,7 @@ $.extend(fixmystreet.set_up, {
       // Deal with changes to report state by inspector/other staff, specifically
       // displaying nearby reports if it's changed to 'duplicate'.
       function refresh_duplicate_list() {
-          var report_id = $("#report_inspect_form [name=report_id]").val();
+          var report_id = $("#report_inspect_form .js-report-id").text();
           var args = {
               filter_category: $("#report_inspect_form select#category").val(),
               latitude: $('input[name="latitude"]').val(),
