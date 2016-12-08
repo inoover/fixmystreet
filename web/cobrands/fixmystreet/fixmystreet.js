@@ -401,7 +401,7 @@ $.extend(fixmystreet.set_up, {
               longitude: $('input[name="longitude"]').val()
           };
           $("#js-duplicate-reports ul").html("<li>Loading...</li>");
-          var nearby_url = '/report/'+report_id+'/nearby';
+          var nearby_url = '/report/'+report_id+'/nearby.json';
           $.getJSON(nearby_url, args, function(data) {
               var duplicate_of = $("#report_inspect_form [name=duplicate_of]").val();
               var $reports = $(data.current)

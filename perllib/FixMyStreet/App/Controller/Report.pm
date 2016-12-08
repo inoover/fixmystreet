@@ -295,7 +295,7 @@ sub action_router : Path('') : Args(2) {
     my ( $self, $c, $id, $action ) = @_;
 
     $c->go( 'map', [ $id ] ) if $action eq 'map';
-    $c->go( 'nearby', [ $id ] ) if $action eq 'nearby';
+    $c->go( 'nearby_json', [ $id ] ) if $action eq 'nearby.json';
 
     $c->detach( '/page_error_404_not_found', [] );
 }
@@ -425,7 +425,7 @@ sub map : Private {
 }
 
 
-sub nearby : Private {
+sub nearby_json : Private {
     my ( $self, $c, $id ) = @_;
 
     $c->forward( 'load_problem_or_display_error', [ $id ] );
