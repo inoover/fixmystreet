@@ -181,6 +181,7 @@ use namespace::clean -except => [ 'meta' ];
 use Utils;
 use FixMyStreet::Map::FMS;
 use LWP::Simple qw($ua);
+use RABX;
 
 my $IM = eval {
     require Image::Magick;
@@ -1050,9 +1051,8 @@ has duplicates => (
     lazy => 1,
     default => sub {
         my $self = shift;
-        my $id = $self->id;
-        my $idlen = length $id;
-        my @duplicates = $self->result_source->schema->resultset('Problem')->search({ extra => { like => "\%duplicate_of,I$idlen:$id%" } })->all;
+        my $rabx_id = RABX::serialise( $self->id );
+        my @duplicates = $self->result_source->schema->resultset('Problem')->search({ extra => { like => "\%duplicate_of,$rabx_id%" } })->all;
         return \@duplicates;
     },
 );
