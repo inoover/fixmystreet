@@ -659,7 +659,8 @@ $.extend(fixmystreet.set_up, {
     // The inspect form submit button can change depending on the selected state
     $("#report_inspect_form [name=state]").change(function(){
         var state = $(this).val();
-        var $submit = $("#report_inspect_form input[type=submit]");
+        var $inspect_form = $("#report_inspect_form");
+        var $submit = $inspect_form.find("input[type=submit]");
         var value = $submit.attr('data-value-'+state);
         if (value !== undefined) {
             $submit.val(value);
@@ -668,9 +669,9 @@ $.extend(fixmystreet.set_up, {
         }
 
         // We might also have a response template to preselect for the new state
-        var $option = $("#report_inspect_form select.js-template-name option[data-problem-state='"+state+"']").first();
+        var $option = $inspect_form.find("select.js-template-name option[data-problem-state='"+state+"']").first();
         if ($option.length) {
-            $("#report_inspect_form select.js-template-name").val($option.val()).change();
+            $inspect_form.find("select.js-template-name").val($option.val()).change();
         }
     }).change();
 
