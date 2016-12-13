@@ -1,20 +1,16 @@
-[% IF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) AND c.user.is_planned_report(problem) %]
-    [% item_extra_class = "item-list__item--indented" %]
-    [% item_action = BLOCK %]
-        <input type="submit" name="shortlist-remove" value="[% loc('Remove from shortlist') %]" title="[% loc('Remove from shortlist') %]" class="item-list__item__shortlist-remove">
-    [% END %]
-
-[% ELSIF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) AND problem.shortlisted_user %]
-    [% item_extra_class = "item-list__item--indented" %]
-    [% item_action = BLOCK %]
-        <input type="submit" name="shortlist-add" value="[% loc('Add to shortlist') %]" title="[% loc('Add to shortlist') %]" class="item-list__item__shortlist-take">
-    [% END %]
-
-[% ELSIF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) %]
-    [% item_extra_class = "item-list__item--indented" %]
-    [% item_action = BLOCK %]
-        <input type="submit" name="shortlist-add" value="[% loc('Add to shortlist') %]" title="[% loc('Add to shortlist') %]" class="item-list__item__shortlist-add">
-    [% END %]
+[% IF c.user.has_permission_to('planned_reports', problem.bodies_str_ids) ~%]
+    [% item_extra_class = "item-list__item--indented" ~%]
+    [% item_action = BLOCK ~%]
+      <input type="submit" value="1"
+        data-label-remove="[% loc('Remove from shortlist') %]"
+        data-label-add="[% loc('Add to shortlist') %]"
+      [% IF c.user.is_planned_report(problem) ~%]
+        name="shortlist-remove" title="[% loc('Remove from shortlist') %]" class="item-list__item__shortlist-remove"
+      [%~ ELSE ~%]
+        name="shortlist-add" title="[% loc('Add to shortlist') %]" class="item-list__item__shortlist-[% IF problem.shortlisted_user %]take[% ELSE %]add[% END %]"
+      [%~ END ~%]
+      >
+    [%~ END %]
 [% END %]
 
 [% IF shortlist %]

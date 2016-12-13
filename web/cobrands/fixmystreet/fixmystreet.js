@@ -398,6 +398,15 @@ $.extend(fixmystreet.set_up, {
   },
 
   list_item_actions: function() {
+    function toggle_shortlist(btn, sw, id) {
+        btn.attr('class', 'item-list__item__shortlist-' + sw);
+        btn.attr('title', btn.data('label-' + sw));
+        if (id) {
+            sw += '-' + id;
+        }
+        btn.attr('name', 'shortlist-' + sw);
+    }
+
     $('.item-list').on('click', ':submit', function(e) {
       e.preventDefault();
 
@@ -407,13 +416,14 @@ $.extend(fixmystreet.set_up, {
       var $item;
       var $list;
       var $hiddenInput;
+      var report_id;
       if (fixmystreet.page === 'around') {
           // Deal differently because one big form
           var parts = whatUserWants.split('-');
           whatUserWants = parts[0] + '-' + parts[1];
-          var id = parts[2];
+          report_id = parts[2];
           var token = $('[name=token]').val();
-          data = whatUserWants + '=1&token=' + token + '&id=' + id;
+          data = whatUserWants + '=1&token=' + token + '&id=' + report_id;
       } else {
           var $form = $(this).parents('form');
           $item = $form.parent('.item-list__item');
@@ -437,17 +447,9 @@ $.extend(fixmystreet.set_up, {
       } else if ('shortlist-up' === whatUserWants) {
         $item.insertBefore( $item.prev() );
       } else if ('shortlist-remove' === whatUserWants) {
-          $submitButton.attr('class', 'item-list__item__shortlist-add');
-          $submitButton.attr('name', 'shortlist-add');
-          // TODO Change title/value to Add
-      } else if ('shortlist-take' === whatUserWants) {
-          $submitButton.attr('class', 'item-list__item__shortlist-remove');
-          $submitButton.attr('name', 'shortlist-remove');
-          // TODO Change title/value to Remove
+          toggle_shortlist($submitButton, 'add', report_id);
       } else if ('shortlist-add' === whatUserWants) {
-          $submitButton.attr('class', 'item-list__item__shortlist-remove');
-          $submitButton.attr('name', 'shortlist-remove');
-          // TODO Change title/value to Remove
+          toggle_shortlist($submitButton, 'remove', report_id);
       }
 
       // Items have moved around. We need to make sure the "up" button on the
@@ -464,6 +466,10 @@ $.extend(fixmystreet.set_up, {
           $item.insertBefore( $item.prev() );
         } else if ('shortlist-up' === whatUserWants) {
           $item.insertAfter( $item.next() );
+        } else if ('shortlist-remove' === whatUserWants) {
+          toggle_shortlist($submitButton, 'remove', report_id);
+        } else if ('shortlist-add' === whatUserWants) {
+          toggle_shortlist($submitButton, 'add', report_id);
         }
         fixmystreet.update_list_item_buttons($list);
       }).complete(function() {
