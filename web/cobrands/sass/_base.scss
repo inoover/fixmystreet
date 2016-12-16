@@ -1150,6 +1150,10 @@ input.final-submit {
 
 .item-list--front-page {
   border-bottom: none;
+
+  .item-list__item {
+    background-color: transparent;
+  }
 }
 
 .problem-header .update-img,
